@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enroll page</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="reg-form" id="reg-form">
+      <form id="enroll-form" method="post" action="/enroll">
+        <h3 align="center">STUDENT ENROLLMENT FORM</h3>
+
+        <table align="center" cellpadding="9">
+          <tr>
+            <td>First Name :</td>
+            <td>
+              <input type="text" name="First_Name" placeholder="First Name" />
+            </td>
+          </tr>
+
+          <tr>
+            <td>Last Name :</td>
+            <td>
+              <input type="text" name="Last_Name" placeholder="Last Name" />
+            </td>
+          </tr>
+
+          <tr>
+            <td>Gender :</td>
+            <td>
+              <input
+                type="radio"
+                id="genderRadio1"
+                name="Gender"
+                value="male"
+              />
+              <label for="genderRadio1">Male</label>
+
+              <input
+                type="radio"
+                id="genderRadio2"
+                name="Gender"
+                value="female"
+              />
+              <label for="genderRadio2">Female</label>
+            </td>
+          </tr>
+
+          <!-- <tr>
+            <td>Select Course :</td>
+            <br />
+            <td>
+              Computer<input type="radio" name="Course" value="Computer" />
+
+              Mechanical<input type="radio" name="Course" value="Mechanical" />
+
+              Civil<input type="radio" name="Course" value="Civil" />
+            </td>
+          </tr> -->
+
+          <tr>
+            <td>Sic Number :</td>
+            <td>
+              <input type="text" name="Sic_Number" placeholder="Sic Number" />
+            </td>
+          </tr>
+
+          <tr>
+            <td>Biometric :</td>
+            <td>
+              <input type="text" name="Biometric" placeholder="Biometric" />
+            </td>
+          </tr>
+
+          <tr>
+            <td align="right"></td>
+            <td>
+              <input type="Submit" value="Submit" id="enroll-submit-btn" />
+            </td>
+          </tr>
+        </table>
+      </form>
+    </div>
+  </body>
+</html>
