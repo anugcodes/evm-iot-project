@@ -7,82 +7,72 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <div class="background-container2">
-      <!-- <div class="box left">
-          <table border="1">
-            <form style="height: 75vh">
-              <th colspan="2">
-                <tr>
-                  <h2 style="background-color: blue">ELECTORATE</h2>
-                </tr>
-              </th>
-              <tr>
-                <div class="photo-box">
-                  <input
-                    type="file"
-                    id="photoUpload"
-                    name="photoUpload"
-                    accept="image/*"
-                    onchange="previewImage(event)"
-                  />
-                  <label for="photoUpload" id="photoLabel">Choose Photo</label>
-                  <img
-                    id="preview"
-                    src="#"
-                    alt="Preview Image"
-                    style="display: none"
-                  />
-                </div>
-              </tr>
-              <tr>
-                <td>Registration no:</td>
-                <td><input type="number" /></td>
-              </tr>
-              <tr>
-                <td>Name:</td>
-                <td><input type="text" /></td>
-              </tr>
-              <tr>
-                <td>SIC:</td>
-                <td><input type="text" /></td>
-              </tr>
-              <tr>
-                <td>Year:</td>
-                <td><input type="number" /></td>
-              </tr>
-              <tr>
-                <td>Gender:</td>
-                <td>
-                  <input type="radio" name="Gender" />Male
-                  <input type="radio" name="Gender" />Female
-                </td>
-              </tr>
-            </form>
-          </table>
-        </div> -->
+    <div class="container">
+      <div class="voter-info">
+        <h4>Voter's Details</h4>
+        <table style="width: 100%" border="1" cellpadding="10" cellspacing="0">
+          <tbody>
+            <tr>
+              <td style="width: 40%">&nbsp;Full Name</td>
+              <td style="width: 60%">&nbsp;</td>
+            </tr>
+            <tr>
+              <td style="width: 40%">&nbsp;Gender</td>
+              <td style="width: 60%">&nbsp;</td>
+            </tr>
+            <tr>
+              <td style="width: 40%">Sic Number</td>
+              <td style="width: 60%">&nbsp;</td>
+            </tr>
+            <tr>
+              <td style="width: 40%">Biometric</td>
+              <td style="width: 60%">&nbsp;</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-      <div class="box right">
-        <table>
-          <tr>
-            <td>Candidate's Name :</td>
-            <td>
-              <input
-                type="text"
-                name="Candidate_Name"
-                placeholder="Candidate's Name"
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>Candidate's Sic Number :</td>
-            <td>
-              <input
-                type="text"
-                name="Candidate_Sic"
-                placeholder="Candidate's Sic Number"
-              />
-            </td>
-          </tr>
+      <hr />
+
+      <div class="add-candidate-form">
+        <h4>Add New Candidate</h4>
+        <div class="add-candidate-field">
+          <label for="candidate-name">Candidate's Name :</label>
+          <input
+            id="candidate-name"
+            type="text"
+            name="Candidate_Name"
+            placeholder="Candidate's Name"
+          />
+        </div>
+        <div class="add-candidate-field">
+          <label for="candidate-sic">Candidate's Sic Number :</label>
+          <input
+            type="text"
+            name="Candidate_Sic"
+            placeholder="Candidate's Sic Number"
+          />
+        </div>
+        <input type="submit" value="Submit" />
+      </div>
+
+      <hr />
+
+      <div class="candidate-list">
+        <h4>Candidate's List</h4>
+        <table style="float: left" border="2" cellspacing="0" cellpadding="8">
+          <tbody>
+            <tr>
+              <td>Candidate's Name</td>
+              <td>Candidate's Sic Number</td>
+              <td>Number of votes recieved</td>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+            </tr>
+          </tbody>
         </table>
       </div>
     </div>
