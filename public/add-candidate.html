@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>add candidates page</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <form class="add-candidate-form" id="add-candidate-form" action="#">
+        <h4>Add New Candidate</h4>
+        <div class="add-candidate-field">
+          <label for="candidate-name">Candidate's Name :</label>
+          <input
+            required
+            id="candidate-name"
+            type="text"
+            name="Candidate_Name"
+            placeholder="Candidate's Name"
+          />
+        </div>
+        <div class="add-candidate-field">
+          <label for="candidate-sic">Candidate's Sic Number :</label>
+          <input
+            required
+            type="text"
+            name="Candidate_Sic"
+            placeholder="Candidate's Sic Number"
+          />
+        </div>
+        <input type="submit" value="Add Candidate" required />
+      </form>
+
+      <hr />
+
+      <div class="candidate-list" id="candidate-list-box">
+        <h4>Candidate's List</h4>
+        <table style="float: left" border="2" cellspacing="0" cellpadding="8">
+          <tbody id="candidates-list-box">
+            <tr>
+              <td>ID</td>
+              <td>Candidate's Name</td>
+              <td>Candidate's Sic Number</td>
+              <td>Number of votes recieved</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      //   window.addEventListener("load", () => main());
+
+      const addCandidateForm = document.querySelector("#add-candidate-form");
+      addCandidateForm.addEventListener("submit", addCandidate);
+
+      async function addCandidate(e) {
+        e.preventDefault();
+        let candidateData = new FormData(addCandidateForm);
+        try {
+          if (
+            candidateData.get("Candidate_Name") !== "" &&
+            candidateData.get("Candidate_Sic") !== ""
+          ) {
+            candidateData = formDataToDictionary(candidateData);
+            console.log(candidateData);
+            fetch("/add-candidate", {
+              method: "POST",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(candidateData),
+            })
+              .then((res) => res.json())
+              .then((data) => {
+                console.log(data);
+                updateTable(data);
+              });
+          } else return;
+        } catch (err) {
+          console.log(err);
+        } finally {
+          addCandidateForm.reset();
+        }
+      }
+
+      function updateTable(data) {
+        console.log(data.data);
+        const candidatesListBox = document.querySelector(
+          "#candidates-list-box"
+        );
+        data.data.map((d) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+                <td>${d.id}</td>
+              <td>${d.name}</td>
+              <td>${d.sic}</td>
+              <td>${String(d.votes)}</td>
+            `;
+          candidatesListBox.appendChild(tr);
+        });
+      }
+
+      function formDataToDictionary(formData) {
+        const dictionary = {};
+        for (const [key, value] of formData.entries()) {
+          if (dictionary[key]) {
+            // Handle multiple values for the same key (optional)
+            if (!Array.isArray(dictionary[key])) {
+              dictionary[key] = [dictionary[key]];
+            }
+            dictionary[key].push(value);
+          } else {
+            dictionary[key] = value;
+          }
+        }
+        return dictionary;
+      }
+    </script>
+  </body>
+</html>

@@ -4,25 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Enroll page</title>
-    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div class="reg-form" id="reg-form">
-      <form id="enroll-form" method="post" action="/enroll">
+      <form id="enroll-form">
         <h3 align="center">STUDENT ENROLLMENT FORM</h3>
 
         <table align="center" cellpadding="9">
           <tr>
-            <td>First Name :</td>
+            <td>Full Name :</td>
             <td>
-              <input type="text" name="First_Name" placeholder="First Name" />
-            </td>
-          </tr>
-
-          <tr>
-            <td>Last Name :</td>
-            <td>
-              <input type="text" name="Last_Name" placeholder="Last Name" />
+              <input type="text" name="Full_Name" placeholder="Full Name" />
             </td>
           </tr>
 
@@ -47,18 +40,6 @@
             </td>
           </tr>
 
-          <!-- <tr>
-            <td>Select Course :</td>
-            <br />
-            <td>
-              Computer<input type="radio" name="Course" value="Computer" />
-
-              Mechanical<input type="radio" name="Course" value="Mechanical" />
-
-              Civil<input type="radio" name="Course" value="Civil" />
-            </td>
-          </tr> -->
-
           <tr>
             <td>Sic Number :</td>
             <td>
@@ -82,5 +63,45 @@
         </table>
       </form>
     </div>
+
+    <script>
+      const enrollForm = document.querySelector('#enroll-form');
+      enrollForm.addEventListener('submit',(e)=>addCandidate(e));
+      
+      async function addCandidate(e) {
+        e.preventDefault();
+        let data = new FormData(enrollForm);
+        data = formDataToDictionary(data);
+        console.log(data);
+
+        const response = await fetch("/enroll", {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+        console.log(response.json());
+        alert("response added");
+        enrollForm.reset();
+      }
+
+      function formDataToDictionary(formData) {
+        const dictionary = {};
+        for (const [key, value] of formData.entries()) {
+          if (dictionary[key]) {
+            // Handle multiple values for the same key (optional)
+            if (!Array.isArray(dictionary[key])) {
+              dictionary[key] = [dictionary[key]];
+            }
+            dictionary[key].push(value);
+          } else {
+            dictionary[key] = value;
+          }
+        }
+        return dictionary;
+      }
+    </script>
   </body>
 </html>

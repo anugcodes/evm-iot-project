@@ -32,33 +32,11 @@
         </table>
       </div>
 
-      <hr />
-
-      <div class="add-candidate-form">
-        <h4>Add New Candidate</h4>
-        <div class="add-candidate-field">
-          <label for="candidate-name">Candidate's Name :</label>
-          <input
-            id="candidate-name"
-            type="text"
-            name="Candidate_Name"
-            placeholder="Candidate's Name"
-          />
-        </div>
-        <div class="add-candidate-field">
-          <label for="candidate-sic">Candidate's Sic Number :</label>
-          <input
-            type="text"
-            name="Candidate_Sic"
-            placeholder="Candidate's Sic Number"
-          />
-        </div>
-        <input type="submit" value="Submit" />
-      </div>
+    
 
       <hr />
 
-      <div class="candidate-list">
+      <div class="candidate-list" id="candidate-list-box">
         <h4>Candidate's List</h4>
         <table style="float: left" border="2" cellspacing="0" cellpadding="8">
           <tbody>
@@ -76,5 +54,16 @@
         </table>
       </div>
     </div>
+
+    <script>
+      window.addEventListener("load", () => main());
+
+      function main() {
+        console.log("main");
+        const addCandidateForm = document.querySelector("#add-candidate-form");
+        const candidateList = document.querySelector("#candidate-list-box");
+        const voterListBox = document.querySelector(".voter-info");
+      }
+    </script>
   </body>
 </html>
