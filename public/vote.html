@@ -3,52 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Enroll page</title>
+    <title>add candidates page</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div class="container">
-      <div class="voter-info">
-        <h4>Voter's Details</h4>
-        <table style="width: 100%" border="1" cellpadding="10" cellspacing="0">
-          <tbody>
-            <tr>
-              <td style="width: 40%">&nbsp;Full Name</td>
-              <td style="width: 60%">&nbsp;</td>
-            </tr>
-            <tr>
-              <td style="width: 40%">&nbsp;Gender</td>
-              <td style="width: 60%">&nbsp;</td>
-            </tr>
-            <tr>
-              <td style="width: 40%">Sic Number</td>
-              <td style="width: 60%">&nbsp;</td>
-            </tr>
-            <tr>
-              <td style="width: 40%">Biometric</td>
-              <td style="width: 60%">&nbsp;</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-    
-
-      <hr />
-
       <div class="candidate-list" id="candidate-list-box">
         <h4>Candidate's List</h4>
-        <table style="float: left" border="2" cellspacing="0" cellpadding="8">
-          <tbody>
+        <table
+          style="float: left; width: 100%"
+          border="1"
+          cellspacing="0"
+          cellpadding="8"
+        >
+          <tbody id="candidates-list-box">
             <tr>
+              <td>ID</td>
               <td>Candidate's Name</td>
               <td>Candidate's Sic Number</td>
               <td>Number of votes recieved</td>
             </tr>
+
+            <% typeof candidates === "object" && candidates.map((candidate,i)=>
+            { %>
             <tr>
-              <td>&nbsp;</td>
-              <td>&nbsp;</td>
-              <td>&nbsp;</td>
+              <td><%= candidate.id %></td>
+              <td><%= candidate.name %></td>
+              <td><%= candidate.sic %></td>
+              <td><%= candidate.votes %></td>
+            </tr>
+            <% }) %>
+
+            <tr>
+              <% typeof candidates === "string" && candidates %>
             </tr>
           </tbody>
         </table>
@@ -56,13 +43,45 @@
     </div>
 
     <script>
-      window.addEventListener("load", () => main());
+      function updateTable(data) {
+        console.log(data);
+        const candidatesListBox = document.querySelector(
+          "#candidates-list-box"
+        );
+        const table_heading = `<tr>
+              <td>ID</td>
+              <td>Candidate's Name</td>
+              <td>Candidate's Sic Number</td>
+              <td>Number of votes recieved</td>
+            </tr>`;
+        candidatesListBox.textContent = "";
+        candidatesListBox.innerHTML = table_heading;
+        data.map((d) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+                <td>${d.id}</td>
+              <td>${d.name}</td>
+              <td>${d.sic}</td>
+              <td>${String(d.votes)}</td>
+            `;
+          candidatesListBox.appendChild(tr);
+        });
+      }
 
-      function main() {
-        console.log("main");
-        const addCandidateForm = document.querySelector("#add-candidate-form");
-        const candidateList = document.querySelector("#candidate-list-box");
-        const voterListBox = document.querySelector(".voter-info");
+      function formDataToDictionary(formData) {
+        const dictionary = {};
+        for (const [key, value] of formData.entries()) {
+          if (dictionary[key]) {
+            // Handle multiple values for the same key (optional)
+            if (!Array.isArray(dictionary[key])) {
+              dictionary[key] = [dictionary[key]];
+            }
+            dictionary[key].push(value);
+          } else {
+            dictionary[key] = value;
+          }
+        }
+        return dictionary;
       }
     </script>
   </body>

@@ -5,6 +5,9 @@ const sqlite3 = require("sqlite3").verbose();
 
 // config
 const app = express();
+app.engine("html", require("ejs").renderFile);
+app.set("view engine", "html");
+
 const port = process.env.PORT || 3000; // Use environment variable for port or default to 3000
 
 initializeDB();
@@ -54,19 +57,74 @@ app
 
 // Route for live voting form
 app.get("/vote", (req, res) => {
-  res.sendFile("vote.html", { root: path.join(__dirname, "public") });
+  // res.sendFile("vote.html", { root: path.join(__dirname, "public") });
+
+  let evmdb = new sqlite3.Database("./db/evm.db", (err) => {
+      if (err) throw err.message;
+      else console.log("evmdb connected successfully.");
+    });
+
+  evmdb.all("SELECT * FROM candidates", [], (err, row) => {
+    let candidates;
+    if (err) throw err;
+    else {
+      if (row.length > 0) {
+        candidates = [...row];
+      } else {
+        candidates = "No candidates";
+      }
+      res.render(path.join(__dirname, "/public", "vote.html"), {
+        candidates: candidates,
+      });
+    }
+  });
+  
+  evmdb.close((err) => {
+    if (err) {
+      console.error(err.message);
+    } else console.log("Close the database connection. get");
+  });
 });
+
 
 app
   .route("/add-candidate")
   .get((req, res) => {
-    res.sendFile("add-candidate.html", {
-      root: path.join(__dirname, "public"),
+    let evmdb = new sqlite3.Database("./db/evm.db", (err) => {
+      if (err) throw err.message;
+      else console.log("evmdb connected successfully.");
+    });
+    console.log("url params:", req.params);
+    if (req.params.action === "clear") {
+      evmdb.run("DELETE * FROM candidates", [], (err, row) => {
+        if (err) throw err;
+        else console.log(row);
+      });
+    }
+
+    evmdb.all("SELECT * FROM candidates", [], (err, row) => {
+      let candidates;
+      if (err) throw err;
+      else {
+        if (row.length > 0) {
+          candidates = [...row];
+        } else {
+          candidates = "No candidates";
+        }
+        res.render(path.join(__dirname, "/public", "add-candidate.html"), {
+          candidates: candidates,
+        });
+      }
+    });
+    evmdb.close((err) => {
+      if (err) {
+        console.error(err.message);
+      } else console.log("Close the database connection. get");
     });
   })
+
   .post((req, res) => {
-    console.log(req.headers, req.body);
-    const { Candidate_Name, Candidate_Sic } = req.body;
+    const { Candidate_Name, Candidate_Sic, action } = req.body;
 
     let evmdb = new sqlite3.Database("./db/evm.db", (err) => {
       if (err) throw err.message;
@@ -74,25 +132,35 @@ app
     });
 
     // inserting one record into voters table
-    evmdb.run(
-      "INSERT INTO candidates (name,sic,votes) VALUES(?,?,?)",
-      [Candidate_Name, Candidate_Sic, 0],
-      function (err) {
+    if (Candidate_Name && Candidate_Sic) {
+      evmdb.run(
+        "INSERT INTO candidates (name,sic,votes) VALUES(?,?,?)",
+        [Candidate_Name, Candidate_Sic, 0],
+        function (err) {
+          if (err) {
+            return console.log(err.message);
+          } else
+            console.log(
+              `new enrollment -  Full Name: ${Candidate_Name}, Sic Number: ${Candidate_Sic}, Votes: ${0} - [added]`
+            ); // Example logging
+        }
+      );
+    }
+
+    if (action === "clear") {
+      // clear the table
+      evmdb.run("DELETE FROM candidates", [], function (err) {
         if (err) {
           return console.log(err.message);
-        } else
-          console.log(
-            `new enrollment -  Full Name: ${Candidate_Name}, Sic Number: ${Candidate_Sic}, Votes: ${0} - [added]`
-          ); // Example logging
-      }
-    );
-    let candidatesRes = [];
+        }
+      });
+    }
 
+    let candidatesRes = [];
     evmdb.all("SELECT * FROM candidates", [], (err, row) => {
       if (err) throw err;
       else {
         candidatesRes = row;
-        console.log(candidatesRes, row);
         res.send(
           JSON.stringify({
             state: "success",

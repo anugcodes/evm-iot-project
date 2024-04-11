@@ -35,8 +35,16 @@
       <hr />
 
       <div class="candidate-list" id="candidate-list-box">
-        <h4>Candidate's List</h4>
-        <table style="float: left" border="2" cellspacing="0" cellpadding="8">
+        <div class="heading-with-controls">
+          <h4>Candidate's List</h4>
+          <button id="clear-db-btn">clear candidates</button>
+        </div>
+        <table
+          style="float: left; width: 100%"
+          border="2"
+          cellspacing="0"
+          cellpadding="8"
+        >
           <tbody id="candidates-list-box">
             <tr>
               <td>ID</td>
@@ -44,16 +52,51 @@
               <td>Candidate's Sic Number</td>
               <td>Number of votes recieved</td>
             </tr>
+
+            <% typeof candidates === "object" && candidates.map((candidate,i)=>
+            { %>
+            <tr>
+              <td><%= candidate.id %></td>
+              <td><%= candidate.name %></td>
+              <td><%= candidate.sic %></td>
+              <td><%= candidate.votes %></td>
+            </tr>
+            <% }) %>
+
+            <tr>
+              <% typeof candidates === "string" && candidates %>
+            </tr>
           </tbody>
         </table>
       </div>
     </div>
 
     <script>
-      //   window.addEventListener("load", () => main());
-
       const addCandidateForm = document.querySelector("#add-candidate-form");
       addCandidateForm.addEventListener("submit", addCandidate);
+      const clearDBBtn = document.querySelector("#clear-db-btn");
+      clearDBBtn.addEventListener("click", clearDbRequest);
+
+      async function clearDbRequest() {
+        console.log("clear click");
+        try {
+          await fetch("/add-candidate", {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ action: "clear" }),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              console.log(data);
+              updateTable(data.data);
+            });
+        } catch (err) {
+          throw err;
+        }
+      }
 
       async function addCandidate(e) {
         e.preventDefault();
@@ -76,7 +119,7 @@
               .then((res) => res.json())
               .then((data) => {
                 console.log(data);
-                updateTable(data);
+                updateTable(data.data);
               });
           } else return;
         } catch (err) {
@@ -87,11 +130,19 @@
       }
 
       function updateTable(data) {
-        console.log(data.data);
+        console.log(data);
         const candidatesListBox = document.querySelector(
           "#candidates-list-box"
         );
-        data.data.map((d) => {
+        const table_heading = `<tr>
+              <td>ID</td>
+              <td>Candidate's Name</td>
+              <td>Candidate's Sic Number</td>
+              <td>Number of votes recieved</td>
+            </tr>`;
+        candidatesListBox.textContent = "";
+        candidatesListBox.innerHTML = table_heading;
+        data.map((d) => {
           const tr = document.createElement("tr");
           tr.innerHTML = `
                 <td>${d.id}</td>

@@ -104,3 +104,11 @@ hr {
 .add-candidate-field input {
   min-width: 400px;
 }
+.heading-with-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.heading-with-controls button {
+  max-height: 2rem;
+}
