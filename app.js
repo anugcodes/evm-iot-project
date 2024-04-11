@@ -60,9 +60,9 @@ app.get("/vote", (req, res) => {
   // res.sendFile("vote.html", { root: path.join(__dirname, "public") });
 
   let evmdb = new sqlite3.Database("./db/evm.db", (err) => {
-      if (err) throw err.message;
-      else console.log("evmdb connected successfully.");
-    });
+    if (err) throw err.message;
+    else console.log("evmdb connected successfully.");
+  });
 
   evmdb.all("SELECT * FROM candidates", [], (err, row) => {
     let candidates;
@@ -78,14 +78,13 @@ app.get("/vote", (req, res) => {
       });
     }
   });
-  
+
   evmdb.close((err) => {
     if (err) {
       console.error(err.message);
     } else console.log("Close the database connection. get");
   });
 });
-
 
 app
   .route("/add-candidate")
@@ -241,13 +240,13 @@ checks if above two db exists. if not it creates the dbs.
   // );
 
   // fetching one row
-  evmdb.each("SELECT * FROM candidates", [], (err, row) => {
-    if (err) throw err;
-    else {
-      // row.forEach((r)=> console.log(r));
-      console.log(row);
-    }
-  });
+  // evmdb.each("SELECT * FROM candidates", [], (err, row) => {
+  //   if (err) throw err;
+  //   else {
+  //     // row.forEach((r)=> console.log(r));
+  //     console.log(row);
+  //   }
+  // });
 
   evmdb.close((err) => {
     if (err) {
