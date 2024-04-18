@@ -10,7 +10,7 @@
     <div class="container">
       <div class="voter-details">
         <h4>Voter's Details</h4>
-        <table border="1" cellpadding="8" cellspacing="0" style="width: 100%;">
+        <table border="1" cellpadding="8" cellspacing="0" style="width: 100%">
           <tbody>
             <tr>
               <td>&nbsp;Name</td>
@@ -61,56 +61,54 @@
               <td><%= candidate.votes %></td>
             </tr>
             <% }) %>
-
-            <tr>
-              <% typeof candidates === "string" && candidates %>
-            </tr>
           </tbody>
         </table>
       </div>
     </div>
 
+    //
     <script>
-      function updateTable(data) {
-        console.log(data);
-        const candidatesListBox = document.querySelector(
-          "#candidates-list-box"
-        );
-        const table_heading = `<tr>
-              <td>ID</td>
-              <td>Candidate's Name</td>
-              <td>Candidate's Sic Number</td>
-              <td>Number of votes recieved</td>
-            </tr>`;
-        candidatesListBox.textContent = "";
-        candidatesListBox.innerHTML = table_heading;
-        data.map((d) => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-                <td>${d.id}</td>
-              <td>${d.name}</td>
-              <td>${d.sic}</td>
-              <td>${String(d.votes)}</td>
-            `;
-          candidatesListBox.appendChild(tr);
-        });
-      }
+      //   function updateTable(data) {
+      //     console.log(data);
+      //     const candidatesListBox = document.querySelector(
+      //       "#candidates-list-box"
+      //     );
+      //     const table_heading = `<tr>
+      //           <td>ID</td>
+      //           <td>Candidate's Name</td>
+      //           <td>Candidate's Sic Number</td>
+      //           <td>Number of votes recieved</td>
+      //         </tr>`;
+      //     candidatesListBox.textContent = "";
+      //     candidatesListBox.innerHTML = table_heading;
+      //     data.map((d) => {
+      //       const tr = document.createElement("tr");
+      //       tr.innerHTML = `
+      //             <td>${d.id}</td>
+      //           <td>${d.name}</td>
+      //           <td>${d.sic}</td>
+      //           <td>${String(d.votes)}</td>
+      //         `;
+      //       candidatesListBox.appendChild(tr);
+      //     });
+      //   }
 
-      function formDataToDictionary(formData) {
-        const dictionary = {};
-        for (const [key, value] of formData.entries()) {
-          if (dictionary[key]) {
-            // Handle multiple values for the same key (optional)
-            if (!Array.isArray(dictionary[key])) {
-              dictionary[key] = [dictionary[key]];
-            }
-            dictionary[key].push(value);
-          } else {
-            dictionary[key] = value;
-          }
-        }
-        return dictionary;
-      }
+      //   function formDataToDictionary(formData) {
+      //     const dictionary = {};
+      //     for (const [key, value] of formData.entries()) {
+      //       if (dictionary[key]) {
+      //         // Handle multiple values for the same key (optional)
+      //         if (!Array.isArray(dictionary[key])) {
+      //           dictionary[key] = [dictionary[key]];
+      //         }
+      //         dictionary[key].push(value);
+      //       } else {
+      //         dictionary[key] = value;
+      //       }
+      //     }
+      //     return dictionary;
+      //   }
+      //
     </script>
   </body>
 </html>

@@ -17,6 +17,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // Configure body-parser
 app.use(bodyParser.json()); // Parse form data
 
+//  Route for path: /enroll
 app
   .route("/enroll")
   .get((req, res) => {
@@ -26,212 +27,166 @@ app
     // Access form data from req.body object (e.g., req.body.name, req.body.email)
     const { Full_Name, Gender, Sic_Number, Biometric } = req.body; // Destructuring for cleaner access
 
-    let evmdb = new sqlite3.Database("./db/evm.db", (err) => {
-      if (err) throw err.message;
-      else console.log("evmdb connected successfully.");
+    connectDb((db) => {
+      // inserting one record into voters table
+      db.run(
+        "INSERT INTO voters(full_name,gender,sic_number,biometric) VALUES(?,?,?,?)",
+        [Full_Name, Gender, Sic_Number, Biometric],
+        function (err) {
+          if (err) {
+            return console.log(err.message);
+          } else
+            console.log(
+              `new enrollment -  Full Name: ${Full_Name}, Gender: ${Gender}, Sic: ${Sic_Number}, Biometric: ${Biometric} - [added]`
+            ); // Example logging
+        }
+      );
     });
-
-    // inserting one record into voters table
-    evmdb.run(
-      "INSERT INTO voters(full_name,gender,sic_number,biometric) VALUES(?,?,?,?)",
-      [Full_Name, Gender, Sic_Number, Biometric],
-      function (err) {
-        if (err) {
-          return console.log(err.message);
-        } else
-          console.log(
-            `new enrollment -  Full Name: ${Full_Name}, Gender: ${Gender}, Sic: ${Sic_Number}, Biometric: ${Biometric} - [added]`
-          ); // Example logging
-      }
-    );
-
-    evmdb.close((err) => {
-      if (err) {
-        console.error(err.message);
-      } else console.log("Close the database connection.");
-    });
-
     // Respond to successful enrollment (or error handling)
-    res.send("Enrollment successful!"); // Customize based on your logic
+    res.send(JSON.stringify({message: "success"})); // Customize based on your logic
   });
 
-// Route for live voting form
+// Route for path: /vote
 app
   .route("/vote")
   .get((req, res) => {
     // res.sendFile("vote.html", { root: path.join(__dirname, "public") });
 
-    let evmdb = new sqlite3.Database("./db/evm.db", (err) => {
-      if (err) throw err.message;
-      else console.log("evmdb connected successfully.");
-    });
-
-    evmdb.all("SELECT * FROM candidates", [], (err, row) => {
-      let candidates;
-      if (err) throw err;
-      else {
-        if (row.length > 0) {
-          candidates = [...row];
-        } else {
-          candidates = "No candidates";
+    connectDb((db) => {
+      db.all("SELECT * FROM candidates", [], (err, row) => {
+        let candidates;
+        if (err) throw err;
+        else {
+          if (row.length > 0) {
+            candidates = [...row];
+          } else {
+            candidates = "No candidates";
+          }
+          res.render(path.join(__dirname, "/public", "vote.html"), {
+            candidates: candidates,
+          });
         }
-        res.render(path.join(__dirname, "/public", "vote.html"), {
-          candidates: candidates,
-        });
-      }
-    });
-
-    evmdb.close((err) => {
-      if (err) {
-        console.error(err.message);
-      } else console.log("Close the database connection. get");
+      });
     });
   })
   .post((req, res) => {
-    const { id,name,sic,votes } = req.body;
-    console.log(id,name,sic,votes);
+    const { id, name, sic, votes } = req.body;
+    console.log(id, name, sic, votes);
 
-    let evmdb = new sqlite3.Database("./db/evm.db", (err) => {
-      if (err) throw err.message;
-      else console.log("evmdb connected successfully.");
+    connectDb((db) => {
+      db.run(
+        `UPDATE candidates SET votes=votes+1 WHERE id=${id}`,
+        [],
+        (err, row) => {
+          if (err) console.log(err);
+        }
+      );
+
+      db.all("SELECT * FROM candidates", [], (err, row) => {
+        if (err) throw err;
+        else {
+          res.send(JSON.stringify(row));
+        }
+      });
     });
-
-    evmdb.run(`UPDATE candidates SET votes=votes+1 WHERE id=${id}`, [], (err, row) => {
-      if(err) console.log(err);
-    });
-
-    evmdb.all("SELECT * FROM candidates",[],(err,row)=>{
-      if(err) throw err;
-      else {
-        res.send(JSON.stringify(row));
-      }
-    })
-
-    evmdb.close((err) => {
-      if (err) {
-        console.error(err.message);
-      } else console.log("Close the database connection. get");
-    });
-
   });
 
 app
   .route("/add-candidate")
   .get((req, res) => {
-    let evmdb = new sqlite3.Database("./db/evm.db", (err) => {
-      if (err) throw err.message;
-      else console.log("evmdb connected successfully.");
-    });
-    console.log("url params:", req.params);
-    if (req.params.action === "clear") {
-      evmdb.run("DELETE * FROM candidates", [], (err, row) => {
-        if (err) throw err;
-        else console.log(row);
-      });
-    }
-
-    evmdb.all("SELECT * FROM candidates", [], (err, row) => {
-      let candidates;
-      if (err) throw err;
-      else {
-        if (row.length > 0) {
-          candidates = [...row];
-        } else {
-          candidates = "No candidates";
-        }
-        res.render(path.join(__dirname, "/public", "add-candidate.html"), {
-          candidates: candidates,
+    connectDb((db) => {
+      console.log("url params:", req.params);
+      if (req.params.action === "clear") {
+        db.run("DELETE * FROM candidates", [], (err, row) => {
+          if (err) throw err;
+          else console.log(row);
         });
       }
-    });
-    evmdb.close((err) => {
-      if (err) {
-        console.error(err.message);
-      } else console.log("Close the database connection. get");
+
+      db.all("SELECT * FROM candidates", [], (err, row) => {
+        let candidates;
+        if (err) throw err;
+        else {
+          if (row.length > 0) {
+            candidates = [...row];
+          } else {
+            candidates = "No candidates";
+          }
+          res.render(path.join(__dirname, "/public", "add-candidate.html"), {
+            candidates: candidates,
+          });
+        }
+      });
     });
   })
 
   .post((req, res) => {
     const { Candidate_Name, Candidate_Sic, action } = req.body;
 
-    let evmdb = new sqlite3.Database("./db/evm.db", (err) => {
-      if (err) throw err.message;
-      else console.log("evmdb connected successfully.");
-    });
+    connectDb((db) => {
+      // inserting one record into voters table
+      if (Candidate_Name && Candidate_Sic) {
+        db.run(
+          "INSERT INTO candidates (name,sic,votes) VALUES(?,?,?)",
+          [Candidate_Name, Candidate_Sic, 0],
+          function (err) {
+            if (err) {
+              return console.log(err.message);
+            } else
+              console.log(
+                `new enrollment -  Full Name: ${Candidate_Name}, Sic Number: ${Candidate_Sic}, Votes: ${0} - [added]`
+              ); // Example logging
+          }
+        );
+      }
 
-    // inserting one record into voters table
-    if (Candidate_Name && Candidate_Sic) {
-      evmdb.run(
-        "INSERT INTO candidates (name,sic,votes) VALUES(?,?,?)",
-        [Candidate_Name, Candidate_Sic, 0],
-        function (err) {
+      if (action === "clear") {
+        // clear the table
+        db.run("DELETE FROM candidates", [], function (err) {
           if (err) {
             return console.log(err.message);
-          } else
-            console.log(
-              `new enrollment -  Full Name: ${Candidate_Name}, Sic Number: ${Candidate_Sic}, Votes: ${0} - [added]`
-            ); // Example logging
-        }
-      );
-    }
+          }
+        });
+      }
 
-    if (action === "clear") {
-      // clear the table
-      evmdb.run("DELETE FROM candidates", [], function (err) {
-        if (err) {
-          return console.log(err.message);
+      let candidatesRes = [];
+      db.all("SELECT * FROM candidates", [], (err, row) => {
+        if (err) throw err;
+        else {
+          candidatesRes = row;
+          res.send(
+            JSON.stringify({
+              state: "success",
+              data: candidatesRes,
+            })
+          );
         }
+      });
+    });
+  });
+
+
+app.route("/candidates").get((req, res) => {
+  console.log("url params:", req.params);
+
+  connectDb((db) => {
+    if (req.params.action === "clear") {
+      db.run("DELETE * FROM candidates", [], (err, row) => {
+        if (err) throw err;
+        else console.log(row);
       });
     }
 
-    let candidatesRes = [];
-    evmdb.all("SELECT * FROM candidates", [], (err, row) => {
+    db.all("SELECT * FROM candidates", [], (err, row) => {
       if (err) throw err;
       else {
-        candidatesRes = row;
-        res.send(
-          JSON.stringify({
-            state: "success",
-            data: candidatesRes,
-          })
-        );
+        res.send(JSON.stringify(row));
       }
     });
-
-    evmdb.close((err) => {
-      if (err) {
-        console.error(err.message);
-      } else console.log("Close the database connection.");
-    });
-  });
-
-app.route("/candidates").get((req, res) => {
-  let evmdb = new sqlite3.Database("./db/evm.db", (err) => {
-    if (err) throw err.message;
-    else console.log("evmdb connected successfully.");
-  });
-  console.log("url params:", req.params);
-  if (req.params.action === "clear") {
-    evmdb.run("DELETE * FROM candidates", [], (err, row) => {
-      if (err) throw err;
-      else console.log(row);
-    });
-  }
-
-  evmdb.all("SELECT * FROM candidates", [], (err, row) => {
-    if (err) throw err;
-    else {
-      res.send(JSON.stringify(row));
-    }
-  });
-  evmdb.close((err) => {
-    if (err) {
-      console.error(err.message);
-    } else console.log("Close the database connection. get");
   });
 });
 
-app.listen(port,'0.0.0.0', () => {
+app.listen(port, "0.0.0.0", () => {
   console.log(`Server listening on port ${port}`);
 });
 
@@ -248,7 +203,7 @@ checks if above two db exists. if not it creates the dbs.
   full_name TEXT NOT NULL,
   gender TEXT NOT NULL,
   sic_number TEXT NOT NULL,
-  biometric TEXT NOT NULL,
+  biometric INTEGER NOT NULL,
 );`;
 
   const candidate_table_sql = `CREATE TABLE candidates (
@@ -258,20 +213,17 @@ checks if above two db exists. if not it creates the dbs.
   votes INTEGER NOT NULL
 );`;
 
-  let evmdb = new sqlite3.Database("./db/evm.db", (err) => {
-    if (err) throw err.message;
-    else console.log("evmdb connected successfully.");
-  });
+  connectDb((db) => {
+    // checking if tables exists or not
+    checkTableExists(db, "voters", (err, row) => {
+      if (err) throw err;
+      else if (!row) db.run(voters_table_sql);
+    });
 
-  // checking if tables exists or not
-  checkTableExists(evmdb, "voters", (err, row) => {
-    if (err) throw err;
-    else if (!row) evmdb.run(voters_table_sql);
-  });
-
-  checkTableExists(evmdb, "candidates", (err, row) => {
-    if (err) throw err;
-    else if (!row) evmdb.run(candidate_table_sql);
+    checkTableExists(db, "candidates", (err, row) => {
+      if (err) throw err;
+      else if (!row) db.run(candidate_table_sql);
+    });
   });
 
   // inserting one record into voters table
@@ -302,13 +254,6 @@ checks if above two db exists. if not it creates the dbs.
   //     console.log(row);
   //   }
   // });
-
-  evmdb.close((err) => {
-    if (err) {
-      console.error(err.message);
-    }
-    console.log("Close the database connection.");
-  });
 }
 
 function checkTableExists(db, tableName, callback) {
@@ -326,4 +271,26 @@ function checkTableExists(db, tableName, callback) {
   } catch (err) {
     console.error(err);
   }
+}
+
+function connectDb(taskCallback) {
+  /*
+  this function connects to the database file and executes any function and closes the database.
+    -- db - path to the database file.
+    -- taskCallback(db) - function to execute when the database is connected. 
+  */
+  const databaseAddress = "./db/evm.db";
+  let db = new sqlite3.Database(databaseAddress, (err) => {
+    if (err) throw err.message;
+    else console.log("evmdb connected successfully.");
+  });
+
+  taskCallback(db);
+
+  db.close((err) => {
+    if (err) {
+      console.error(err.message);
+    }
+    console.log("Close the database connection.");
+  });
 }

@@ -65,26 +65,32 @@
     </div>
 
     <script>
-      const enrollForm = document.querySelector('#enroll-form');
-      enrollForm.addEventListener('submit',(e)=>addCandidate(e));
-      
+      const enrollForm = document.querySelector("#enroll-form");
+      enrollForm.addEventListener("submit", (e) => addCandidate(e));
+
       async function addCandidate(e) {
         e.preventDefault();
         let data = new FormData(enrollForm);
         data = formDataToDictionary(data);
         console.log(data);
 
-        const response = await fetch("/enroll", {
+        await fetch("/enroll", {
           method: "POST",
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
           },
           body: JSON.stringify(data),
-        });
-        console.log(response.json());
-        alert("response added");
-        enrollForm.reset();
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.message === "success") {
+              alert("response added");
+              enrollForm.reset();
+            } else {
+              alert("failed");
+            }
+          });
       }
 
       function formDataToDictionary(formData) {
