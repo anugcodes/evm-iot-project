@@ -43,7 +43,7 @@ app
       );
     });
     // Respond to successful enrollment (or error handling)
-    res.send(JSON.stringify({message: "success"})); // Customize based on your logic
+    res.send(JSON.stringify({ message: "success" })); // Customize based on your logic
   });
 
 // Route for path: /vote
@@ -165,18 +165,10 @@ app
     });
   });
 
-
 app.route("/candidates").get((req, res) => {
   console.log("url params:", req.params);
 
   connectDb((db) => {
-    if (req.params.action === "clear") {
-      db.run("DELETE * FROM candidates", [], (err, row) => {
-        if (err) throw err;
-        else console.log(row);
-      });
-    }
-
     db.all("SELECT * FROM candidates", [], (err, row) => {
       if (err) throw err;
       else {
@@ -184,6 +176,29 @@ app.route("/candidates").get((req, res) => {
       }
     });
   });
+});
+
+app.route("/voter").get((req, res) => {
+  console.log("/voter - url params: ", req.query);
+  const biometric = req.query.biometric;
+  console.log(biometric);
+
+  // if (biometric !== undefined && biometric !== null) {
+  connectDb((db) => {
+    db.all(
+      `SELECT * from voters WHERE biometric=${biometric}`,
+      [],
+      (err, row) => {
+        if (err) throw err;
+        else {
+          res.send(JSON.stringify(row));
+        }
+      }
+    );
+  });
+  // } else {
+  //   res.send("invalid parameters")
+  // }
 });
 
 app.listen(port, "0.0.0.0", () => {
@@ -204,6 +219,7 @@ checks if above two db exists. if not it creates the dbs.
   gender TEXT NOT NULL,
   sic_number TEXT NOT NULL,
   biometric INTEGER NOT NULL,
+  voted_to INTEGER
 );`;
 
   const candidate_table_sql = `CREATE TABLE candidates (
